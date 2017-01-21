@@ -136,8 +136,12 @@ void TabBar::closeTab(int index)
     if (index < 0 || index >= m_editors.size())
         return;
 
-    Core::EditorManager::instance()->closeEditor(m_editors.takeAt(index));
-    removeTab(index);
+    // error if user click close button to close a document which is modified and not saved,
+    // this call will defalt call closeEditor with closeEditor(IEditor *editor, bool askAboutModifiedEditors = true)
+    // if user chose "cancel", the Core::EditorManager won't close the editor, TabBar use takeAt will remove the editor from
+    // the container m_editors and call removeTab() to remove from QTabBar
+    Core::EditorManager::instance()->closeEditor(m_editors.value(index));
+
 }
 
 void TabBar::prevTabAction()
